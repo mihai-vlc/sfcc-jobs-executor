@@ -3,6 +3,7 @@
   "displayName": "SFCC jobs Executor",
   "description": "Execute SFCC jobs from VSCode.",
   "version": "1.0.0",
+  "publisher": "ionutvmi",
   "engines": {
     "vscode": "^1.70.0"
   },
