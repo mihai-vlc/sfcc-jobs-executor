@@ -1,9 +1,5 @@
 # Change Log
 
-All notable changes to the "sfcc-jobs-executor" extension will be documented in this file.
-
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
+## [1.0.0] - 28/Aug/2022
 
 - Initial release

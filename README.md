@@ -1,71 +1,112 @@
-# sfcc-jobs-executor README
+# SFCC Jobs Executor
 
-This is the README for your extension "sfcc-jobs-executor". After writing up a brief description, we recommend including the following sections.
+Run SFCC jobs from VSCode.
+
+![screenshot](/screenshots/screen1.png)
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- Read the job id from the comments on the active file
+- Show the job execution logs in the output window
 
-For example if there is an image subfolder under your extension project workspace:
+## Installation
 
-\!\[feature X\]\(images/feature-x.png\)
+You can install it from the [marketplace](https://marketplace.visualstudio.com/items?itemName=ionutvmi.sfcc-jobs-executor).  
+`ext install ionutvmi.sfcc-jobs-executor`
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Configuration
 
-## Requirements
+### Business Manager
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+Administration > Site Development > Open Commerce API Settings  
+Data - Global
 
-## Extension Settings
+```json
+{
+  "allowed_origins": [],
+  "client_id": "",
+  "resources": [
+    {
+      "resource_id": "/jobs/{job_id}/executions",
+      "read_attributes": "(**)",
+      "write_attributes": "(**)",
+      "methods": ["post"]
+    },
+    {
+      "resource_id": "/jobs/{job_id}/executions/{id}",
+      "read_attributes": "(**)",
+      "write_attributes": "(**)",
+      "methods": ["get"]
+    }
+  ]
+}
+```
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+Administration > Organization > WebDAV Client Permissions
 
-For example:
+```json
+{
+  "client_id": "",
+  "permissions": [
+    {
+      "path": "/Logs",
+      "operations": ["read"]
+    }
+  ]
+}
+```
 
-This extension contributes the following settings:
+### In the VSCode workspace
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+```json
+// dw.json file
+{
+  "hostname": "",
+  "client-id": "",
+  "client-secret": ""
+}
+```
 
-## Known Issues
+```js
+// In any file you can specify the job id and timeout
+//   The job id should be last in the configuration list.
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+// @sfccJobTailLogTimeout 60000
+// @sfccJobClearLog
+// @sfccJobId 000-test-job
+
+// or jsdoc style
+
+/**
+ * @sfccJobTailLogTimeout 60000
+ * @sfccJobClearLog
+ * @sfccJobId 000-test-job
+ */
+```
+
+## Keyboard shortcuts
+
+To configure a custom keyboard shortcut:
+
+```json
+// keybindings.json
+{
+  "key": "ctrl+shift+f6",
+  "command": "sfcc-jobs-executor.runJob"
+}
+```
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+The release notes are available in the [CHANGELOG.md](./CHANGELOG.md) document.
 
 ---
 
-## Following extension guidelines
+## Author
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+Mihai Ionut Vilcu
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+- [github/ionutvmi](https://github.com/ionutvmi)
+- [twitter/mihai_vlc](http://twitter.com/mihai_vlc)
 
 **Enjoy!**
