@@ -29,12 +29,12 @@
         {
           "type": "tree",
           "id": "sfcc-jobs-executor.jobsView",
-          "name": "SFCC Jobs"
+          "name": "Jobs"
         },
         {
           "type": "tree",
           "id": "sfcc-jobs-executor.transformationsView",
-          "name": "SFCC Logs Transformations"
+          "name": "Logs Transformations"
         }
       ]
     },
@@ -75,11 +75,6 @@
           "group": "inline@3"
         },
         {
-          "command": "sfcc-jobs-executor.addTransformation",
-          "when": "view == sfcc-jobs-executor.transformationsView",
-          "group": "inline@1"
-        },
-        {
           "command": "sfcc-jobs-executor.editTransformation",
           "when": "view == sfcc-jobs-executor.transformationsView",
           "group": "inline@2"
@@ -95,6 +90,11 @@
           "command": "sfcc-jobs-executor.addJob",
           "when": "view == sfcc-jobs-executor.jobsView",
           "group": "navigation"
+        },
+        {
+          "command": "sfcc-jobs-executor.addTransformation",
+          "when": "view == sfcc-jobs-executor.transformationsView",
+          "group": "navigation"
         }
       ]
     },
@@ -102,7 +102,7 @@
       {
         "command": "sfcc-jobs-executor.runJob",
         "title": "SFCC - Run job",
-        "icon": "$(play)"
+        "icon": "resources/play.png"
       },
       {
         "command": "sfcc-jobs-executor.addJob",

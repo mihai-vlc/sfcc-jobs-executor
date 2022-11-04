@@ -156,15 +156,18 @@ async function startConfigurationMonitor(
 
 async function onConfigurationChange(
   fileUri: vscode.Uri,
-  ocpaiConfiguration: OCAPIConfiguration
+  ocapiConfiguration: OCAPIConfiguration
 ) {
+  const isFirstUpdate = !ocapiConfiguration.isDefined();
   const content = await vscode.workspace.fs.readFile(fileUri);
-  const updateResult = ocpaiConfiguration.update(content.toString());
+  const updateResult = ocapiConfiguration.update(content.toString());
 
   if (updateResult) {
-    vscode.window.showInformationMessage(
-      "[SFCC_JOBS]: configuration updated successfully !"
-    );
+    if (!isFirstUpdate) {
+      vscode.window.showInformationMessage(
+        "[SFCC_JOBS]: configuration updated successfully !"
+      );
+    }
   } else {
     vscode.window.showErrorMessage(
       "[SFCC_JOBS]: Error parsing the dw.json file"
