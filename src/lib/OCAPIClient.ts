@@ -1,17 +1,12 @@
 import fetch from "cross-fetch";
 import * as vscode from "vscode";
+import FilteredLogger from "./FilteredLogger";
+import OCAPIConfiguration from "./OCAPIConfiguration";
 
 interface TokenCache {
   expireTime: number;
   value: string;
 }
-
-interface Config {
-  hostname: string;
-  "client-id": string;
-  "client-secret": string;
-}
-
 interface JobsData {
   [key: string]: {
     executionId: number;
@@ -23,13 +18,13 @@ interface JobsData {
 
 export default class OCAPIClient {
   private tokenCache: TokenCache;
-  private config: Config;
-  private outputChannel: vscode.OutputChannel;
+  private config: OCAPIConfiguration;
+  private logger: FilteredLogger;
   private jobsData: JobsData;
 
-  constructor(config: Config, outputChannel: vscode.OutputChannel) {
+  constructor(config: OCAPIConfiguration, logger: FilteredLogger) {
     this.config = config;
-    this.outputChannel = outputChannel;
+    this.logger = logger;
 
     this.tokenCache = {
       expireTime: 0,
@@ -40,11 +35,15 @@ export default class OCAPIClient {
   }
 
   log(text: string) {
-    this.outputChannel.appendLine(text);
+    this.logger.log(text);
   }
 
   logWithPrefix(text: string) {
     this.log(`[${new Date().toISOString()}] SFCC_JOBS: ${text}`);
+  }
+
+  isConfigured() {
+    return this.config.isDefined();
   }
 
   async executeJob(jobId: string) {
@@ -252,7 +251,7 @@ export default class OCAPIClient {
             Authorization:
               "Basic " +
               Buffer.from(
-                this.config["client-id"] + ":" + this.config["client-secret"]
+                this.config.clientId + ":" + this.config.clientSecret
               ).toString("base64"),
           },
           body: "grant_type=client_credentials",
