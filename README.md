@@ -23,20 +23,24 @@ Data - Global
 
 ```json
 {
-  "allowed_origins": [],
-  "client_id": "",
-  "resources": [
+  "clients": [
     {
-      "resource_id": "/jobs/{job_id}/executions",
-      "read_attributes": "(**)",
-      "write_attributes": "(**)",
-      "methods": ["post"]
-    },
-    {
-      "resource_id": "/jobs/{job_id}/executions/{id}",
-      "read_attributes": "(**)",
-      "write_attributes": "(**)",
-      "methods": ["get"]
+      "allowed_origins": [],
+      "client_id": "",
+      "resources": [
+        {
+          "resource_id": "/jobs/{job_id}/executions",
+          "read_attributes": "(**)",
+          "write_attributes": "(**)",
+          "methods": ["post"]
+        },
+        {
+          "resource_id": "/jobs/{job_id}/executions/{id}",
+          "read_attributes": "(**)",
+          "write_attributes": "(**)",
+          "methods": ["get"]
+        }
+      ]
     }
   ]
 }
@@ -44,13 +48,17 @@ Data - Global
 
 Administration > Organization > WebDAV Client Permissions
 
-```json
+```jsonc
 {
-  "client_id": "",
-  "permissions": [
+  "clients": [
     {
-      "path": "/Logs",
-      "operations": ["read"]
+      "client_id": "",
+      "permissions": [
+        {
+          "path": "/Logs",
+          "operations": ["read"]
+        }
+      ]
     }
   ]
 }
@@ -58,7 +66,7 @@ Administration > Organization > WebDAV Client Permissions
 
 ### In the VSCode workspace
 
-```json
+```jsonc
 // dw.json file
 {
   "hostname": "",
@@ -88,7 +96,7 @@ Administration > Organization > WebDAV Client Permissions
 
 To configure a custom keyboard shortcut:
 
-```json
+```jsonc
 // keybindings.json
 {
   "key": "ctrl+shift+f6",

@@ -2,24 +2,49 @@ import * as vscode from "vscode";
 import FilteredLogger from "./lib/FilteredLogger";
 import JobDetails from "./lib/JobDetails";
 import JobRunner from "./lib/JobRunner";
+import { JobsTreeViewProvider as JobsTreeDataProvider } from "./lib/JobsTreeDataProvider";
 import OCAPIClient from "./lib/OCAPIClient";
 import OCAPIConfiguration from "./lib/OCAPIConfiguration";
+import { TransformationsTreeDataProvider } from "./lib/TransformationsTreeDataProvider";
 
 export function activate(context: vscode.ExtensionContext) {
-  const outputChannel = vscode.window.createOutputChannel("SFCC_JOBS");
-  context.subscriptions.push(outputChannel);
-
-  const statusBar = createStatusBar();
-  context.subscriptions.push(statusBar);
+  registerStatusBar(context);
 
   const ocapiConfiguration = new OCAPIConfiguration();
   startConfigurationMonitor(context, ocapiConfiguration);
+
+  const outputChannel = vscode.window.createOutputChannel("SFCC_JOBS");
+  context.subscriptions.push(outputChannel);
 
   const logger = new FilteredLogger(outputChannel);
   const ocapi = new OCAPIClient(ocapiConfiguration, logger);
 
   const jobRunner = new JobRunner(ocapi, outputChannel);
   registerRunJobCommand(context, jobRunner);
+
+  const jobsProvider = new JobsTreeDataProvider();
+  const jobsTreeView = vscode.window.createTreeView(
+    JobsTreeDataProvider.viewId,
+    {
+      treeDataProvider: jobsProvider,
+    }
+  );
+
+  registerAddJobCommand(context);
+  registerEditJobCommand(context);
+  registerRemoveJobCommand(context);
+
+  const transformationsProvider = new TransformationsTreeDataProvider();
+  const transformationsTreeView = vscode.window.createTreeView(
+    TransformationsTreeDataProvider.viewId,
+    {
+      treeDataProvider: transformationsProvider,
+    }
+  );
+
+  registerAddTransformationCommand(context);
+  registerEditTransformationCommand(context);
+  registerRemoveTransformationCommand(context);
 }
 
 async function registerRunJobCommand(
@@ -49,6 +74,60 @@ async function registerRunJobCommand(
         );
       }
     }
+  );
+  context.subscriptions.push(commandDisposable);
+}
+
+async function registerAddJobCommand(context: vscode.ExtensionContext) {
+  const commandDisposable = vscode.commands.registerCommand(
+    "sfcc-jobs-executor.addJob",
+    () => null
+  );
+  context.subscriptions.push(commandDisposable);
+}
+
+async function registerEditJobCommand(context: vscode.ExtensionContext) {
+  const commandDisposable = vscode.commands.registerCommand(
+    "sfcc-jobs-executor.editJob",
+    () => null
+  );
+  context.subscriptions.push(commandDisposable);
+}
+
+async function registerRemoveJobCommand(context: vscode.ExtensionContext) {
+  const commandDisposable = vscode.commands.registerCommand(
+    "sfcc-jobs-executor.removeJob",
+    () => null
+  );
+  context.subscriptions.push(commandDisposable);
+}
+
+async function registerAddTransformationCommand(
+  context: vscode.ExtensionContext
+) {
+  const commandDisposable = vscode.commands.registerCommand(
+    "sfcc-jobs-executor.addTransformation",
+    () => null
+  );
+  context.subscriptions.push(commandDisposable);
+}
+
+async function registerEditTransformationCommand(
+  context: vscode.ExtensionContext
+) {
+  const commandDisposable = vscode.commands.registerCommand(
+    "sfcc-jobs-executor.editTransformation",
+    () => null
+  );
+  context.subscriptions.push(commandDisposable);
+}
+
+async function registerRemoveTransformationCommand(
+  context: vscode.ExtensionContext
+) {
+  const commandDisposable = vscode.commands.registerCommand(
+    "sfcc-jobs-executor.removeTransformation",
+    () => null
   );
   context.subscriptions.push(commandDisposable);
 }
@@ -113,7 +192,7 @@ async function getJobDetailsFromActiveFile(): Promise<JobDetails> {
   return jobDetails;
 }
 
-function createStatusBar() {
+function registerStatusBar(context: vscode.ExtensionContext) {
   var statusBar = vscode.window.createStatusBarItem(
     "overload_status",
     vscode.StatusBarAlignment.Left,
@@ -123,7 +202,7 @@ function createStatusBar() {
   statusBar.command = "sfcc-jobs-executor.runJob";
   statusBar.show();
 
-  return statusBar;
+  context.subscriptions.push(statusBar);
 }
 
 export function deactivate() {}

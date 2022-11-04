@@ -24,10 +24,115 @@
     "email": "ionutvmi@gmail.com"
   },
   "contributes": {
+    "views": {
+      "sfcc-jobs-executor": [
+        {
+          "type": "tree",
+          "id": "sfcc-jobs-executor.jobsView",
+          "name": "SFCC Jobs"
+        },
+        {
+          "type": "tree",
+          "id": "sfcc-jobs-executor.transformationsView",
+          "name": "SFCC Logs Transformations"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "sfcc-jobs-executor.jobsView",
+        "contents": "No jobs found.\n[Add Job](command:sfcc-jobs-executor.addJob)"
+      },
+      {
+        "view": "sfcc-jobs-executor.transformationsView",
+        "contents": "No transformations found.\n[Add Transformation](command:sfcc-jobs-executor.transfromationsJob)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sfcc-jobs-executor",
+          "title": "SFCC Jobs",
+          "icon": "./resources/icon.png"
+        }
+      ]
+    },
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "sfcc-jobs-executor.runJob",
+          "when": "view == sfcc-jobs-executor.jobsView",
+          "group": "inline@1"
+        },
+        {
+          "command": "sfcc-jobs-executor.editJob",
+          "when": "view == sfcc-jobs-executor.jobsView",
+          "group": "inline@2"
+        },
+        {
+          "command": "sfcc-jobs-executor.removeJob",
+          "when": "view == sfcc-jobs-executor.jobsView",
+          "group": "inline@3"
+        },
+        {
+          "command": "sfcc-jobs-executor.addTransformation",
+          "when": "view == sfcc-jobs-executor.transformationsView",
+          "group": "inline@1"
+        },
+        {
+          "command": "sfcc-jobs-executor.editTransformation",
+          "when": "view == sfcc-jobs-executor.transformationsView",
+          "group": "inline@2"
+        },
+        {
+          "command": "sfcc-jobs-executor.removeTransformation",
+          "when": "view == sfcc-jobs-executor.transformationsView",
+          "group": "inline@3"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "sfcc-jobs-executor.addJob",
+          "when": "view == sfcc-jobs-executor.jobsView",
+          "group": "navigation"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "sfcc-jobs-executor.runJob",
-        "title": "SFCC - Run job"
+        "title": "SFCC - Run job",
+        "icon": "$(play)"
+      },
+      {
+        "command": "sfcc-jobs-executor.addJob",
+        "title": "Add job",
+        "icon": "$(add)"
+      },
+      {
+        "command": "sfcc-jobs-executor.editJob",
+        "title": "Edit job",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "sfcc-jobs-executor.removeJob",
+        "title": "Remove job",
+        "icon": "$(remove)"
+      },
+      {
+        "command": "sfcc-jobs-executor.addTransformation",
+        "title": "Add Transformation",
+        "icon": "$(add)"
+      },
+      {
+        "command": "sfcc-jobs-executor.editTransformation",
+        "title": "Edit Transformation",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "sfcc-jobs-executor.removeTransformation",
+        "title": "SFCC - Remove Transformation",
+        "icon": "$(remove)"
       }
     ]
   },
