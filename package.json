@@ -77,12 +77,12 @@
         {
           "command": "sfcc-jobs-executor.editTransformation",
           "when": "view == sfcc-jobs-executor.transformationsView",
-          "group": "inline@2"
+          "group": "inline@1"
         },
         {
           "command": "sfcc-jobs-executor.removeTransformation",
           "when": "view == sfcc-jobs-executor.transformationsView",
-          "group": "inline@3"
+          "group": "inline@2"
         }
       ],
       "view/title": [
