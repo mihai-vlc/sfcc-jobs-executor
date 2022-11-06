@@ -2,7 +2,10 @@ import * as vscode from "vscode";
 import FilteredLogger from "./lib/FilteredLogger";
 import JobDetails from "./lib/JobDetails";
 import JobRunner from "./lib/JobRunner";
-import { JobsTreeViewProvider as JobsTreeDataProvider } from "./lib/JobsTreeDataProvider";
+import {
+  JobItem,
+  JobsTreeViewProvider as JobsTreeDataProvider,
+} from "./lib/JobsTreeDataProvider";
 import OCAPIClient from "./lib/OCAPIClient";
 import OCAPIConfiguration from "./lib/OCAPIConfiguration";
 import { TransformationsTreeDataProvider } from "./lib/TransformationsTreeDataProvider";
@@ -33,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   registerAddJobCommand(context, jobsProvider);
   registerEditJobCommand(context);
-  registerRemoveJobCommand(context);
+  registerRemoveJobCommand(context, jobsProvider);
 
   const transformationsProvider = new TransformationsTreeDataProvider();
   const transformationsTreeView = vscode.window.createTreeView(
@@ -88,8 +91,8 @@ async function registerAddJobCommand(
     () => {
       const menu = new JobMenu("jobId");
 
-      menu.onSave((details) => {
-        jobsProvider.addNewJob(details);
+      menu.onSave(async (details) => {
+        await jobsProvider.addNewJob(details);
         jobsProvider.refresh();
       });
 
@@ -107,10 +110,16 @@ async function registerEditJobCommand(context: vscode.ExtensionContext) {
   context.subscriptions.push(commandDisposable);
 }
 
-async function registerRemoveJobCommand(context: vscode.ExtensionContext) {
+async function registerRemoveJobCommand(
+  context: vscode.ExtensionContext,
+  jobsProvider: JobsTreeDataProvider
+) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.removeJob",
-    () => null
+    async (item: JobItem) => {
+      await jobsProvider.removeJob(item.job.id);
+      jobsProvider.refresh();
+    }
   );
   context.subscriptions.push(commandDisposable);
 }

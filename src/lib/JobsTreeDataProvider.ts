@@ -44,18 +44,31 @@ export class JobsTreeViewProvider implements vscode.TreeDataProvider<JobItem> {
     return Promise.resolve(result);
   }
 
-  async addNewJob(job: SavedJob) {
+  async addNewJob(newJob: SavedJob) {
     let savedItems = this.store.get<SavedJob[]>("savedJobs");
     if (!savedItems) {
       savedItems = [];
     }
 
-    savedItems.push({
-      id: job.id,
-      timeout: job.timeout,
-      clearLog: job.clearLog,
-      position: job.position,
+    const existingJobIndex = savedItems.findIndex(function (currentJob) {
+      return currentJob.id === newJob.id;
     });
+
+    if (existingJobIndex === -1) {
+      savedItems.push({
+        id: newJob.id,
+        timeout: newJob.timeout,
+        clearLog: newJob.clearLog,
+        position: newJob.position,
+      });
+    } else {
+      savedItems.splice(existingJobIndex, 1, {
+        id: newJob.id,
+        timeout: newJob.timeout,
+        clearLog: newJob.clearLog,
+        position: newJob.position,
+      });
+    }
 
     await this.store.update("savedJobs", savedItems);
     return true;
