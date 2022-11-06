@@ -15,7 +15,7 @@ export default class JobMenu {
   private _onSave = new vscode.EventEmitter<SavedJob>();
   readonly onSave = this._onSave.event;
 
-  constructor(private initialStep: "jobId" | "jobConfigurations") {
+  constructor(private initialState?: SavedJob) {
     const context: StepContext = {
       acceptedSteps: [],
     };
@@ -25,14 +25,20 @@ export default class JobMenu {
     this.clearLogStep = new QuickPickStep(context, "Clear log");
     this.positionStep = new InputStep(context, "Position");
 
-    this.clearLogStep.setItems([
-      new Item("true", true, {
-        hideDescription: true,
-      }),
-      new Item("false", false, {
-        hideDescription: true,
-      }),
-    ]);
+    const itemTrue = new Item("true", true, {
+      hideDescription: true,
+    });
+    const itemFalse = new Item("false", false, {
+      hideDescription: true,
+    });
+    this.clearLogStep.setItems([itemTrue, itemFalse]);
+
+    if (initialState) {
+      this.jobIdStep.setValue(initialState.id);
+      this.timeoutStep.setValue(initialState.timeout);
+      this.clearLogStep.setValue(initialState.clearLog ? itemTrue : itemFalse);
+      this.positionStep.setValue(initialState.position);
+    }
 
     this.settingsStep.setCalculateNextStep((context) => {
       if (this.settingsStep.getValue().id === "save") {
@@ -56,14 +62,7 @@ export default class JobMenu {
       }
 
       if (this.settingsStep.getValue().id === "clearLog") {
-        this.clearLogStep.setItems([
-          new Item("true", true, {
-            hideDescription: true,
-          }),
-          new Item("false", false, {
-            hideDescription: true,
-          }),
-        ]);
+        this.clearLogStep.setItems([itemTrue, itemFalse]);
 
         return this.clearLogStep;
       }
@@ -98,7 +97,7 @@ export default class JobMenu {
     this.updateSettingsItems();
 
     this.menu = new MultistepMenu(
-      initialStep === "jobId" ? this.jobIdStep : this.settingsStep
+      initialState === undefined ? this.jobIdStep : this.settingsStep
     );
   }
 

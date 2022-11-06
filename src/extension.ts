@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   registerAddJobCommand(context, jobsProvider);
-  registerEditJobCommand(context);
+  registerEditJobCommand(context, jobsProvider);
   registerRemoveJobCommand(context, jobsProvider);
 
   const transformationsProvider = new TransformationsTreeDataProvider();
@@ -89,7 +89,7 @@ async function registerAddJobCommand(
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.addJob",
     () => {
-      const menu = new JobMenu("jobId");
+      const menu = new JobMenu();
 
       menu.onSave(async (details) => {
         await jobsProvider.addNewJob(details);
@@ -102,10 +102,23 @@ async function registerAddJobCommand(
   context.subscriptions.push(commandDisposable);
 }
 
-async function registerEditJobCommand(context: vscode.ExtensionContext) {
+async function registerEditJobCommand(
+  context: vscode.ExtensionContext,
+  jobsProvider: JobsTreeDataProvider
+) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.editJob",
-    () => null
+    (item: JobItem) => {
+      const menu = new JobMenu(item.job);
+
+      menu.onSave(async (details) => {
+        await jobsProvider.removeJob(item.job.id);
+        await jobsProvider.addNewJob(details);
+        jobsProvider.refresh();
+      });
+
+      menu.show();
+    }
   );
   context.subscriptions.push(commandDisposable);
 }

@@ -11,6 +11,7 @@ export abstract class Step<T = any> {
 
   abstract validate(): boolean;
   abstract getValue(): T;
+  abstract setValue(value: T): void;
 
   setCalculateNextStep(callback: (context: StepContext) => Step | null) {
     this.calculateNextStep = callback;

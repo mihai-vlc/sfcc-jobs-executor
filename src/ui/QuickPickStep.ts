@@ -61,4 +61,8 @@ export default class QuickPickStep extends Step<Item> {
 
     return this.input.selectedItems[0];
   }
+
+  setValue(value: Item) {
+    this.input.selectedItems = [value];
+  }
 }

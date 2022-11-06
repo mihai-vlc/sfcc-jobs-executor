@@ -32,4 +32,7 @@ export class InputStep extends Step<string> {
   getValue() {
     return this.input.value;
   }
+  setValue(value: string) {
+    this.input.value = value;
+  }
 }
