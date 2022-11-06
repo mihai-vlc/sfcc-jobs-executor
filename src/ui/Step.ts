@@ -25,7 +25,6 @@ export abstract class Step<T = any> {
     this.context.acceptedSteps.push(this);
     this.input.hide();
 
-    console.log(this.input.title, "SUCCESS");
     this.deferred.resolve({
       type: StepResultType.SUCCESS,
       nextStep: this.calculateNextStep
@@ -35,19 +34,16 @@ export abstract class Step<T = any> {
   }
 
   handleHide() {
-    console.log(this.input.title, "Hide");
     if (this.accepted) {
       return;
     }
 
-    console.log(this.input.title, "Cancel");
     this.deferred.resolve({
       type: StepResultType.CANCEL,
     });
   }
 
   async show() {
-    console.log(this.input.title, "Show");
     this.input.show();
 
     this.accepted = false;

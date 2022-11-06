@@ -3,15 +3,16 @@ import MultistepMenu from "./MultistepMenu";
 import QuickPickStep, { Item } from "./QuickPickStep";
 import { Step, StepContext } from "./Step";
 import * as vscode from "vscode";
-import JobDetails from "../lib/JobDetails";
+import { SavedJob } from "../lib/JobsTreeDataProvider";
 
 export default class JobMenu {
   private jobIdStep: Step;
   private timeoutStep: Step;
   private settingsStep: QuickPickStep;
   private clearLogStep: QuickPickStep;
+  private positionStep: Step;
   private menu: MultistepMenu;
-  private _onSave = new vscode.EventEmitter<JobDetails>();
+  private _onSave = new vscode.EventEmitter<SavedJob>();
   readonly onSave = this._onSave.event;
 
   constructor(private initialStep: "jobId" | "jobConfigurations") {
@@ -22,6 +23,7 @@ export default class JobMenu {
     this.timeoutStep = new InputStep(context, "Timeout");
     this.settingsStep = new QuickPickStep(context, "Job configurations");
     this.clearLogStep = new QuickPickStep(context, "Clear log");
+    this.positionStep = new InputStep(context, "Position");
 
     this.clearLogStep.setItems([
       new Item("true", true, {
@@ -34,10 +36,12 @@ export default class JobMenu {
 
     this.settingsStep.setCalculateNextStep((context) => {
       if (this.settingsStep.getValue().id === "save") {
-        const details = new JobDetails();
-        details.jobId = this.jobIdStep.getValue();
-        details.timeout = this.timeoutStep.getValue();
-        details.shouldClearLog = this.clearLogStep.getValue().value;
+        const details: SavedJob = {
+          id: this.jobIdStep.getValue(),
+          timeout: this.timeoutStep.getValue(),
+          clearLog: this.clearLogStep.getValue().value,
+          position: this.positionStep.getValue(),
+        };
 
         this._onSave.fire(details);
         return null;
@@ -64,6 +68,10 @@ export default class JobMenu {
         return this.clearLogStep;
       }
 
+      if (this.settingsStep.getValue().id === "position") {
+        return this.positionStep;
+      }
+
       return null;
     });
 
@@ -82,6 +90,11 @@ export default class JobMenu {
       return this.settingsStep;
     });
 
+    this.positionStep.setCalculateNextStep((context) => {
+      this.updateSettingsItems();
+      return this.settingsStep;
+    });
+
     this.updateSettingsItems();
 
     this.menu = new MultistepMenu(
@@ -95,6 +108,7 @@ export default class JobMenu {
       new Item("jobId", this.jobIdStep.getValue()),
       new Item("timeout", this.timeoutStep.getValue()),
       new Item("clearLog", this.clearLogStep.getValue().value),
+      new Item("position", this.positionStep.getValue()),
     ]);
   }
 

@@ -31,7 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  registerAddJobCommand(context);
+  registerAddJobCommand(context, jobsProvider);
   registerEditJobCommand(context);
   registerRemoveJobCommand(context);
 
@@ -79,14 +79,18 @@ async function registerRunJobCommand(
   context.subscriptions.push(commandDisposable);
 }
 
-async function registerAddJobCommand(context: vscode.ExtensionContext) {
+async function registerAddJobCommand(
+  context: vscode.ExtensionContext,
+  jobsProvider: JobsTreeDataProvider
+) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.addJob",
     () => {
       const menu = new JobMenu("jobId");
 
       menu.onSave((details) => {
-        console.log("saved", details);
+        jobsProvider.addNewJob(details);
+        jobsProvider.refresh();
       });
 
       menu.show();
