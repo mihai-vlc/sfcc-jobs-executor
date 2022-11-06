@@ -94,7 +94,13 @@ export class JobItem extends vscode.TreeItem {
   ) {
     super(label, collapsibleState);
 
-    this.tooltip = `${this.label}`;
-    this.description = "";
+    this.tooltip = `id: ${job.id}
+timeout: ${job.timeout}ms
+clearLog: ${job.clearLog}
+position: ${job.position}
+`;
+    this.description = `t:${job.timeout / 1000}s, c:${job.clearLog}, p:${
+      job.position
+    }`;
   }
 }

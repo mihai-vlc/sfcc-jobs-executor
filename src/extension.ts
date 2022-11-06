@@ -8,8 +8,13 @@ import {
 } from "./lib/JobsTreeDataProvider";
 import OCAPIClient from "./lib/OCAPIClient";
 import OCAPIConfiguration from "./lib/OCAPIConfiguration";
-import { TransformationsTreeDataProvider } from "./lib/TransformationsTreeDataProvider";
+import {
+  SavedTransformation,
+  TransformationItem,
+  TransformationsTreeDataProvider,
+} from "./lib/TransformationsTreeDataProvider";
 import JobMenu from "./ui/JobMenu";
+import TransformationMenu from "./ui/TransformationMenu";
 
 export function activate(context: vscode.ExtensionContext) {
   registerStatusBar(context);
@@ -38,7 +43,9 @@ export function activate(context: vscode.ExtensionContext) {
   registerEditJobCommand(context, jobsProvider);
   registerRemoveJobCommand(context, jobsProvider);
 
-  const transformationsProvider = new TransformationsTreeDataProvider();
+  const transformationsProvider = new TransformationsTreeDataProvider(
+    context.globalState
+  );
   const transformationsTreeView = vscode.window.createTreeView(
     TransformationsTreeDataProvider.viewId,
     {
@@ -46,9 +53,9 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  registerAddTransformationCommand(context);
-  registerEditTransformationCommand(context);
-  registerRemoveTransformationCommand(context);
+  registerAddTransformationCommand(context, transformationsProvider);
+  registerEditTransformationCommand(context, transformationsProvider);
+  registerRemoveTransformationCommand(context, transformationsProvider);
 }
 
 async function registerRunJobCommand(
@@ -147,31 +154,56 @@ async function registerRemoveJobCommand(
 }
 
 async function registerAddTransformationCommand(
-  context: vscode.ExtensionContext
+  context: vscode.ExtensionContext,
+  transformationsProvider: TransformationsTreeDataProvider
 ) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.addTransformation",
-    () => null
+    () => {
+      const menu = new TransformationMenu();
+
+      menu.onSave(async (details) => {
+        await transformationsProvider.addNewItem(details);
+        transformationsProvider.refresh();
+      });
+
+      menu.show();
+    }
   );
   context.subscriptions.push(commandDisposable);
 }
 
 async function registerEditTransformationCommand(
-  context: vscode.ExtensionContext
+  context: vscode.ExtensionContext,
+  transformationsProvider: TransformationsTreeDataProvider
 ) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.editTransformation",
-    () => null
+    (item: TransformationItem) => {
+      const menu = new TransformationMenu(item.transformation);
+
+      menu.onSave(async (details) => {
+        await transformationsProvider.removeItem(item.transformation.id);
+        await transformationsProvider.addNewItem(details);
+        transformationsProvider.refresh();
+      });
+
+      menu.show();
+    }
   );
   context.subscriptions.push(commandDisposable);
 }
 
 async function registerRemoveTransformationCommand(
-  context: vscode.ExtensionContext
+  context: vscode.ExtensionContext,
+  transformationsProvider: TransformationsTreeDataProvider
 ) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.removeTransformation",
-    () => null
+    async (item: TransformationItem) => {
+      await transformationsProvider.removeItem(item.transformation.id);
+      transformationsProvider.refresh();
+    }
   );
   context.subscriptions.push(commandDisposable);
 }

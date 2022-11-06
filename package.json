@@ -45,7 +45,7 @@
       },
       {
         "view": "sfcc-jobs-executor.transformationsView",
-        "contents": "No transformations found.\n[Add Transformation](command:sfcc-jobs-executor.transfromationsJob)"
+        "contents": "No transformations found.\n[Add Transformation](command:sfcc-jobs-executor.addTransformation)"
       }
     ],
     "viewsContainers": {
