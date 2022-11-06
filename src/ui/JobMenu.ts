@@ -38,6 +38,10 @@ export default class JobMenu {
       this.timeoutStep.setValue(initialState.timeout);
       this.clearLogStep.setValue(initialState.clearLog ? itemTrue : itemFalse);
       this.positionStep.setValue(initialState.position);
+    } else {
+      this.timeoutStep.setValue(60000);
+      this.clearLogStep.setValue(itemTrue);
+      this.positionStep.setValue(0);
     }
 
     this.settingsStep.setCalculateNextStep((context) => {

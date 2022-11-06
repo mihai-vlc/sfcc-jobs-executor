@@ -57,13 +57,22 @@ async function registerRunJobCommand(
 ) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.runJob",
-    async () => {
+    async (item?: JobItem) => {
       if (!jobRunner.isConfigured()) {
         vscode.window.showErrorMessage("[SFCC_JOBS] Missing configuration");
         return;
       }
 
-      const jobDetails = await getJobDetailsFromActiveFile();
+      let jobDetails: JobDetails;
+      if (item && item.job) {
+        jobDetails = new JobDetails();
+        jobDetails.jobId = item.job.id;
+        jobDetails.timeout = item.job.timeout || jobDetails.timeout;
+        jobDetails.shouldClearLog =
+          item.job.clearLog || jobDetails.shouldClearLog;
+      } else {
+        jobDetails = await getJobDetailsFromActiveFile();
+      }
 
       if (!jobDetails.jobId) {
         await jobDetails.readFromInput(jobRunner.lastJobId);
