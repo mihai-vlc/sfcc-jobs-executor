@@ -75,6 +75,11 @@ export function activate(context: vscode.ExtensionContext) {
     transformationsProvider,
     transformationStore
   );
+  registerToggleEnabledTransformationCommand(
+    context,
+    transformationsProvider,
+    transformationStore
+  );
 }
 
 async function registerRunJobCommand(
@@ -227,6 +232,24 @@ async function registerRemoveTransformationCommand(
     "sfcc-jobs-executor.removeTransformation",
     async (item: TransformationItem) => {
       await transformationStore.removeItem(item.transformation.id);
+      transformationsProvider.refresh();
+    }
+  );
+  context.subscriptions.push(commandDisposable);
+}
+
+async function registerToggleEnabledTransformationCommand(
+  context: vscode.ExtensionContext,
+  transformationsProvider: TransformationsTreeDataProvider,
+  transformationStore: TransformationStore
+) {
+  const commandDisposable = vscode.commands.registerCommand(
+    "sfcc-jobs-executor.toggleEnabledTransformation",
+    async (item: TransformationItem) => {
+      const transformation = Object.assign({}, item.transformation, {
+        enabled: !item.transformation.enabled,
+      });
+      await transformationStore.addItem(transformation);
       transformationsProvider.refresh();
     }
   );

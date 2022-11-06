@@ -11,12 +11,13 @@ export default class FilteredLogger {
     private outputChannel: vscode.OutputChannel,
     private transformationStore: TransformationStore
   ) {
+    this.readAllRules();
     this.transformationStore.onChange(() => this.readAllRules());
   }
 
   readAllRules() {
     this.transformationStore.getAllItems().then((savedItems) => {
-      this.rules = savedItems;
+      this.rules = savedItems.filter((item) => item.enabled);
     });
   }
 

@@ -122,6 +122,9 @@ export default class OCAPIClient {
       `Start tail logs monitoring from https://${this.config.hostname}/on/demandware.servlet/webdav${jobData.logFilePath} , timeout: ${timeout}ms`
     );
 
+    // give some time for the logs to be written
+    await this.sleep(2000);
+
     try {
       let content = await this.getLogFileContent(jobData.logFilePath);
       this.log(content.text);

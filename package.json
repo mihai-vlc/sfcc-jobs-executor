@@ -75,14 +75,19 @@
           "group": "inline@3"
         },
         {
-          "command": "sfcc-jobs-executor.editTransformation",
+          "command": "sfcc-jobs-executor.toggleEnabledTransformation",
           "when": "view == sfcc-jobs-executor.transformationsView",
           "group": "inline@1"
         },
         {
-          "command": "sfcc-jobs-executor.removeTransformation",
+          "command": "sfcc-jobs-executor.editTransformation",
           "when": "view == sfcc-jobs-executor.transformationsView",
           "group": "inline@2"
+        },
+        {
+          "command": "sfcc-jobs-executor.removeTransformation",
+          "when": "view == sfcc-jobs-executor.transformationsView",
+          "group": "inline@3"
         }
       ],
       "view/title": [
@@ -131,8 +136,13 @@
       },
       {
         "command": "sfcc-jobs-executor.removeTransformation",
-        "title": "SFCC - Remove Transformation",
+        "title": "Remove Transformation",
         "icon": "$(remove)"
+      },
+      {
+        "command": "sfcc-jobs-executor.toggleEnabledTransformation",
+        "title": "Toggle Enabled",
+        "icon": "$(stop-circle)"
       }
     ]
   },
