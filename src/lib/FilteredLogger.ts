@@ -1,10 +1,30 @@
 import * as vscode from "vscode";
+import {
+  SavedTransformation,
+  TransformationStore,
+} from "../stores/TransformationStore";
 
 export default class FilteredLogger {
-  constructor(private outputChannel: vscode.OutputChannel) {}
+  private rules: SavedTransformation[] = [];
+
+  constructor(
+    private outputChannel: vscode.OutputChannel,
+    private transformationStore: TransformationStore
+  ) {
+    this.transformationStore.onChange(() => this.readAllRules());
+  }
+
+  readAllRules() {
+    this.transformationStore.getAllItems().then((savedItems) => {
+      this.rules = savedItems;
+    });
+  }
 
   log(msg: string) {
-    msg = msg.replace(/\[.+?\] \w+ \w+\|\d+\|([\w-]+)/g, "[$1] - ");
+    this.rules.forEach((rule) => {
+      const regex = new RegExp(rule.pattern, "g");
+      msg = msg.replace(regex, rule.replacement);
+    });
 
     this.outputChannel.appendLine(msg);
   }

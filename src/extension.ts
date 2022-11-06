@@ -26,13 +26,18 @@ export function activate(context: vscode.ExtensionContext) {
   const outputChannel = vscode.window.createOutputChannel("SFCC_JOBS");
   context.subscriptions.push(outputChannel);
 
-  const logger = new FilteredLogger(outputChannel);
+  const jobStore = new JobStore("savedJobs", context.globalState);
+  const transformationStore = new TransformationStore(
+    "savedTransformations",
+    context.globalState
+  );
+
+  const logger = new FilteredLogger(outputChannel, transformationStore);
   const ocapi = new OCAPIClient(ocapiConfiguration, logger);
 
   const jobRunner = new JobRunner(ocapi, outputChannel);
   registerRunJobCommand(context, jobRunner);
 
-  const jobStore = new JobStore("savedJobs", context.globalState);
   const jobsProvider = new JobsTreeDataProvider(jobStore);
   const jobsTreeView = vscode.window.createTreeView(
     JobsTreeDataProvider.viewId,
@@ -45,10 +50,6 @@ export function activate(context: vscode.ExtensionContext) {
   registerEditJobCommand(context, jobsProvider, jobStore);
   registerRemoveJobCommand(context, jobsProvider, jobStore);
 
-  const transformationStore = new TransformationStore(
-    "savedTransformations",
-    context.globalState
-  );
   const transformationsProvider = new TransformationsTreeDataProvider(
     transformationStore
   );

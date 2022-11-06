@@ -9,6 +9,10 @@ export interface SavedTransformation extends StoreItem {
 }
 
 export class TransformationStore implements Store<SavedTransformation> {
+  private _onChange: vscode.EventEmitter<void> =
+    new vscode.EventEmitter<void>();
+  readonly onChange: vscode.Event<void> = this._onChange.event;
+
   constructor(private storeKey: string, private store: vscode.Memento) {}
 
   getAllItems() {
@@ -50,6 +54,8 @@ export class TransformationStore implements Store<SavedTransformation> {
     }
 
     await this.store.update(this.storeKey, savedItems);
+
+    this._onChange.fire();
     return true;
   }
 
@@ -63,6 +69,8 @@ export class TransformationStore implements Store<SavedTransformation> {
       (transformation) => transformation.id !== transformationId
     );
     await this.store.update("savedTransformations", savedItems);
+
+    this._onChange.fire();
     return true;
   }
 }
