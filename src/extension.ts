@@ -6,8 +6,7 @@ import { JobsTreeViewProvider as JobsTreeDataProvider } from "./lib/JobsTreeData
 import OCAPIClient from "./lib/OCAPIClient";
 import OCAPIConfiguration from "./lib/OCAPIConfiguration";
 import { TransformationsTreeDataProvider } from "./lib/TransformationsTreeDataProvider";
-import { InputStep } from "./ui/InputStep";
-import MultistepMenu from "./ui/MultistepMenu";
+import JobMenu from "./ui/JobMenu";
 
 export function activate(context: vscode.ExtensionContext) {
   registerStatusBar(context);
@@ -84,9 +83,12 @@ async function registerAddJobCommand(context: vscode.ExtensionContext) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.addJob",
     () => {
-      const menu = new MultistepMenu();
-      menu.addStep(new InputStep("Job Id"));
-      menu.addStep(new InputStep("Job configuration"));
+      const menu = new JobMenu("jobId");
+
+      menu.onSave((details) => {
+        console.log("saved", details);
+      });
+
       menu.show();
     }
   );

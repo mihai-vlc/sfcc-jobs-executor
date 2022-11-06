@@ -1,66 +1,35 @@
 import * as vscode from "vscode";
-import Deferred from "../lib/Deferred";
-import { Step, StepResultType } from "./Step";
+import { Step, StepContext } from "./Step";
 
-export class InputStep implements Step {
-  private quickInput: vscode.InputBox;
-  private deferred!: Deferred<StepResultType>;
-  private accepted: boolean = false;
+export class InputStep extends Step<string> {
+  protected input: vscode.InputBox;
 
-  constructor(title: string) {
-    this.quickInput = vscode.window.createInputBox();
+  constructor(context: StepContext, title: string) {
+    super(context);
 
-    this.quickInput.title = title;
-    this.quickInput.prompt = "Insert the item name";
+    this.input = vscode.window.createInputBox();
 
-    this.quickInput.onDidAccept(this.handleAccept.bind(this));
-    this.quickInput.onDidChangeValue(this.validate.bind(this));
-    this.quickInput.onDidHide(this.handleHide.bind(this));
+    this.input.title = title;
+    this.input.ignoreFocusOut = true;
+
+    this.input.onDidAccept(this.handleAccept.bind(this));
+    this.input.onDidChangeValue(this.validate.bind(this));
+    this.input.onDidHide(this.handleHide.bind(this));
   }
 
-  setStepPosition(stepNumber: number, totalSteps: number): void {
-    this.quickInput.step = stepNumber;
-    this.quickInput.totalSteps = totalSteps;
-  }
-
-  private handleAccept() {
-    if (!this.validate()) {
-      return;
-    }
-
-    this.accepted = true;
-
-    if (this.deferred) {
-      this.deferred.resolve(StepResultType.SUCCESS);
-    }
-    this.quickInput.hide();
-  }
-
-  handleHide() {
-    if (this.accepted) {
-      this.deferred.resolve(StepResultType.SUCCESS);
-    } else {
-      this.deferred.resolve(StepResultType.CANCEL);
-    }
-  }
-
-  private validate(): boolean {
-    const value = this.quickInput.value;
+  validate(): boolean {
+    const value = this.input.value;
 
     if (!value) {
-      this.quickInput.validationMessage = "Please insert a value";
+      this.input.validationMessage = "Please insert a value";
       return false;
     }
 
-    this.quickInput.validationMessage = "";
+    this.input.validationMessage = "";
     return true;
   }
 
-  show() {
-    this.accepted = false;
-    this.deferred = new Deferred<StepResultType>();
-    this.quickInput.show();
-
-    return this.deferred.promise;
+  getValue() {
+    return this.input.value;
   }
 }

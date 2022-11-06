@@ -1,31 +1,22 @@
 import * as vscode from "vscode";
-import { Step, StepResultType } from "./Step";
+import { Step, StepContext, StepResult, StepResultType } from "./Step";
 
 export default class MultistepMenu {
-  private steps: Step[] = [];
-  private activeStep: number = 0;
-
-  constructor() {}
-
-  addStep(step: Step) {
-    this.steps.push(step);
-  }
+  constructor(private initalStep: Step) {}
 
   async show() {
     try {
-      while (this.activeStep < this.steps.length) {
-        const currentStep = this.steps[this.activeStep];
+      let nextStep: Step | undefined = this.initalStep;
 
-        currentStep.setStepPosition(this.activeStep + 1, this.steps.length);
+      while (nextStep) {
+        const result: StepResult = await nextStep.show();
 
-        const result: StepResultType = await currentStep.show();
-
-        if (result === StepResultType.CANCEL) {
-          vscode.window.showInformationMessage("Canceled step");
+        if (result.type === StepResultType.CANCEL) {
+          vscode.window.showInformationMessage("Canceled action");
           break;
         }
 
-        this.activeStep++;
+        nextStep = result.nextStep;
       }
     } catch (e) {
       vscode.window.showErrorMessage("Error in the multistep menu " + e);

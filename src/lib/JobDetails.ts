@@ -2,16 +2,8 @@ import * as vscode from "vscode";
 
 export default class JobDetails {
   public jobId: string = "";
-  private _timeout: number = 60000;
-  private _shouldClearLog: boolean = false;
-
-  get timeout() {
-    return this._timeout;
-  }
-
-  get shouldClearLog() {
-    return this._shouldClearLog;
-  }
+  public timeout: number = 60000;
+  public shouldClearLog: boolean = false;
 
   async readFromInput(lastJobId: string) {
     let inputJobId = await vscode.window.showInputBox({
@@ -34,7 +26,7 @@ export default class JobDetails {
       ];
 
       if (matchJobTailLogTimeout.length > 0) {
-        this._timeout = parseInt(matchJobTailLogTimeout[0][1], 10);
+        this.timeout = parseInt(matchJobTailLogTimeout[0][1], 10);
       }
 
       let matchJobClearLog = [
@@ -42,7 +34,7 @@ export default class JobDetails {
       ];
 
       if (matchJobClearLog.length > 0) {
-        this._shouldClearLog = true;
+        this.shouldClearLog = true;
       }
 
       let matchJobId = [
