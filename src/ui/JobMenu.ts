@@ -3,7 +3,7 @@ import MultistepMenu from "./MultistepMenu";
 import QuickPickStep, { Item } from "./QuickPickStep";
 import { Step, StepContext } from "./Step";
 import * as vscode from "vscode";
-import { SavedJob } from "../lib/JobsTreeDataProvider";
+import { SavedJob } from "../stores/JobStore";
 
 export default class JobMenu {
   private jobIdStep: Step;

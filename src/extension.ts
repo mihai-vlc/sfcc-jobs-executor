@@ -9,10 +9,11 @@ import {
 import OCAPIClient from "./lib/OCAPIClient";
 import OCAPIConfiguration from "./lib/OCAPIConfiguration";
 import {
-  SavedTransformation,
   TransformationItem,
   TransformationsTreeDataProvider,
 } from "./lib/TransformationsTreeDataProvider";
+import { JobStore } from "./stores/JobStore";
+import { TransformationStore } from "./stores/TransformationStore";
 import JobMenu from "./ui/JobMenu";
 import TransformationMenu from "./ui/TransformationMenu";
 
@@ -31,7 +32,8 @@ export function activate(context: vscode.ExtensionContext) {
   const jobRunner = new JobRunner(ocapi, outputChannel);
   registerRunJobCommand(context, jobRunner);
 
-  const jobsProvider = new JobsTreeDataProvider(context.globalState);
+  const jobStore = new JobStore("savedJobs", context.globalState);
+  const jobsProvider = new JobsTreeDataProvider(jobStore);
   const jobsTreeView = vscode.window.createTreeView(
     JobsTreeDataProvider.viewId,
     {
@@ -39,12 +41,16 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  registerAddJobCommand(context, jobsProvider);
-  registerEditJobCommand(context, jobsProvider);
-  registerRemoveJobCommand(context, jobsProvider);
+  registerAddJobCommand(context, jobsProvider, jobStore);
+  registerEditJobCommand(context, jobsProvider, jobStore);
+  registerRemoveJobCommand(context, jobsProvider, jobStore);
 
-  const transformationsProvider = new TransformationsTreeDataProvider(
+  const transformationStore = new TransformationStore(
+    "savedTransformations",
     context.globalState
+  );
+  const transformationsProvider = new TransformationsTreeDataProvider(
+    transformationStore
   );
   const transformationsTreeView = vscode.window.createTreeView(
     TransformationsTreeDataProvider.viewId,
@@ -53,9 +59,21 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  registerAddTransformationCommand(context, transformationsProvider);
-  registerEditTransformationCommand(context, transformationsProvider);
-  registerRemoveTransformationCommand(context, transformationsProvider);
+  registerAddTransformationCommand(
+    context,
+    transformationsProvider,
+    transformationStore
+  );
+  registerEditTransformationCommand(
+    context,
+    transformationsProvider,
+    transformationStore
+  );
+  registerRemoveTransformationCommand(
+    context,
+    transformationsProvider,
+    transformationStore
+  );
 }
 
 async function registerRunJobCommand(
@@ -100,7 +118,8 @@ async function registerRunJobCommand(
 
 async function registerAddJobCommand(
   context: vscode.ExtensionContext,
-  jobsProvider: JobsTreeDataProvider
+  jobsProvider: JobsTreeDataProvider,
+  jobStore: JobStore
 ) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.addJob",
@@ -108,7 +127,7 @@ async function registerAddJobCommand(
       const menu = new JobMenu();
 
       menu.onSave(async (details) => {
-        await jobsProvider.addNewJob(details);
+        await jobStore.addItem(details);
         jobsProvider.refresh();
       });
 
@@ -120,7 +139,8 @@ async function registerAddJobCommand(
 
 async function registerEditJobCommand(
   context: vscode.ExtensionContext,
-  jobsProvider: JobsTreeDataProvider
+  jobsProvider: JobsTreeDataProvider,
+  jobStore: JobStore
 ) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.editJob",
@@ -128,8 +148,8 @@ async function registerEditJobCommand(
       const menu = new JobMenu(item.job);
 
       menu.onSave(async (details) => {
-        await jobsProvider.removeJob(item.job.id);
-        await jobsProvider.addNewJob(details);
+        await jobStore.removeItem(item.job.id);
+        await jobStore.addItem(details);
         jobsProvider.refresh();
       });
 
@@ -141,12 +161,13 @@ async function registerEditJobCommand(
 
 async function registerRemoveJobCommand(
   context: vscode.ExtensionContext,
-  jobsProvider: JobsTreeDataProvider
+  jobsProvider: JobsTreeDataProvider,
+  jobStore: JobStore
 ) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.removeJob",
     async (item: JobItem) => {
-      await jobsProvider.removeJob(item.job.id);
+      await jobStore.removeItem(item.job.id);
       jobsProvider.refresh();
     }
   );
@@ -155,7 +176,8 @@ async function registerRemoveJobCommand(
 
 async function registerAddTransformationCommand(
   context: vscode.ExtensionContext,
-  transformationsProvider: TransformationsTreeDataProvider
+  transformationsProvider: TransformationsTreeDataProvider,
+  transformationStore: TransformationStore
 ) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.addTransformation",
@@ -163,7 +185,7 @@ async function registerAddTransformationCommand(
       const menu = new TransformationMenu();
 
       menu.onSave(async (details) => {
-        await transformationsProvider.addNewItem(details);
+        await transformationStore.addItem(details);
         transformationsProvider.refresh();
       });
 
@@ -175,7 +197,8 @@ async function registerAddTransformationCommand(
 
 async function registerEditTransformationCommand(
   context: vscode.ExtensionContext,
-  transformationsProvider: TransformationsTreeDataProvider
+  transformationsProvider: TransformationsTreeDataProvider,
+  transformationStore: TransformationStore
 ) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.editTransformation",
@@ -183,8 +206,8 @@ async function registerEditTransformationCommand(
       const menu = new TransformationMenu(item.transformation);
 
       menu.onSave(async (details) => {
-        await transformationsProvider.removeItem(item.transformation.id);
-        await transformationsProvider.addNewItem(details);
+        await transformationStore.removeItem(item.transformation.id);
+        await transformationStore.addItem(details);
         transformationsProvider.refresh();
       });
 
@@ -196,12 +219,13 @@ async function registerEditTransformationCommand(
 
 async function registerRemoveTransformationCommand(
   context: vscode.ExtensionContext,
-  transformationsProvider: TransformationsTreeDataProvider
+  transformationsProvider: TransformationsTreeDataProvider,
+  transformationStore: TransformationStore
 ) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.removeTransformation",
     async (item: TransformationItem) => {
-      await transformationsProvider.removeItem(item.transformation.id);
+      await transformationStore.removeItem(item.transformation.id);
       transformationsProvider.refresh();
     }
   );

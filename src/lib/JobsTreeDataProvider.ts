@@ -1,22 +1,17 @@
 import * as vscode from "vscode";
+import { JobStore, SavedJob } from "../stores/JobStore";
 
-export interface SavedJob {
-  id: string;
-  timeout: number;
-  clearLog: boolean;
-  position: number;
-}
+type EventData = JobItem | undefined | void;
 
 export class JobsTreeViewProvider implements vscode.TreeDataProvider<JobItem> {
   public static readonly viewId = "sfcc-jobs-executor.jobsView";
 
-  private _onDidChangeTreeData: vscode.EventEmitter<
-    JobItem | undefined | void
-  > = new vscode.EventEmitter<JobItem | undefined | void>();
-  readonly onDidChangeTreeData: vscode.Event<JobItem | undefined | void> =
+  private _onDidChangeTreeData: vscode.EventEmitter<EventData> =
+    new vscode.EventEmitter<EventData>();
+  readonly onDidChangeTreeData: vscode.Event<EventData> =
     this._onDidChangeTreeData.event;
 
-  constructor(private store: vscode.Memento) {}
+  constructor(private store: JobStore) {}
 
   refresh(): void {
     this._onDidChangeTreeData.fire();
@@ -26,11 +21,11 @@ export class JobsTreeViewProvider implements vscode.TreeDataProvider<JobItem> {
     return element;
   }
 
-  getChildren(element?: JobItem): Thenable<JobItem[]> {
-    const savedItems = this.store.get<SavedJob[]>("savedJobs");
+  async getChildren(element?: JobItem) {
+    const savedItems = await this.store.getAllItems();
 
     if (!savedItems) {
-      return Promise.resolve([]);
+      return [];
     }
 
     let result: JobItem[] = [];
@@ -41,48 +36,7 @@ export class JobsTreeViewProvider implements vscode.TreeDataProvider<JobItem> {
         (job) => new JobItem(job.id, job, vscode.TreeItemCollapsibleState.None)
       );
 
-    return Promise.resolve(result);
-  }
-
-  async addNewJob(newJob: SavedJob) {
-    let savedItems = this.store.get<SavedJob[]>("savedJobs");
-    if (!savedItems) {
-      savedItems = [];
-    }
-
-    const existingJobIndex = savedItems.findIndex(function (currentJob) {
-      return currentJob.id === newJob.id;
-    });
-
-    if (existingJobIndex === -1) {
-      savedItems.push({
-        id: newJob.id,
-        timeout: newJob.timeout,
-        clearLog: newJob.clearLog,
-        position: newJob.position,
-      });
-    } else {
-      savedItems.splice(existingJobIndex, 1, {
-        id: newJob.id,
-        timeout: newJob.timeout,
-        clearLog: newJob.clearLog,
-        position: newJob.position,
-      });
-    }
-
-    await this.store.update("savedJobs", savedItems);
-    return true;
-  }
-
-  async removeJob(jobId: string) {
-    let savedItems = this.store.get<SavedJob[]>("savedJobs");
-    if (!savedItems) {
-      return false;
-    }
-
-    savedItems = savedItems.filter((job) => job.id !== jobId);
-    await this.store.update("savedJobs", savedItems);
-    return true;
+    return result;
   }
 }
 

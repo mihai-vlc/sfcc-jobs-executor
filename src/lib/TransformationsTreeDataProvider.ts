@@ -1,26 +1,23 @@
 import * as vscode from "vscode";
+import { Store } from "../stores/Store";
+import {
+  SavedTransformation,
+  TransformationStore,
+} from "../stores/TransformationStore";
 
-export interface SavedTransformation {
-  id: string;
-  pattern: string;
-  replacement: string;
-  position: number;
-  enabled: boolean;
-}
+type EventData = TransformationItem | undefined | void;
 
 export class TransformationsTreeDataProvider
   implements vscode.TreeDataProvider<TransformationItem>
 {
   public static readonly viewId = "sfcc-jobs-executor.transformationsView";
 
-  private _onDidChangeTreeData: vscode.EventEmitter<
-    TransformationItem | undefined | void
-  > = new vscode.EventEmitter<TransformationItem | undefined | void>();
-  readonly onDidChangeTreeData: vscode.Event<
-    TransformationItem | undefined | void
-  > = this._onDidChangeTreeData.event;
+  private _onDidChangeTreeData: vscode.EventEmitter<EventData> =
+    new vscode.EventEmitter<EventData>();
+  readonly onDidChangeTreeData: vscode.Event<EventData> =
+    this._onDidChangeTreeData.event;
 
-  constructor(private store: vscode.Memento) {}
+  constructor(private store: TransformationStore) {}
 
   refresh(): void {
     this._onDidChangeTreeData.fire();
@@ -30,13 +27,11 @@ export class TransformationsTreeDataProvider
     return element;
   }
 
-  getChildren(element?: TransformationItem): Thenable<TransformationItem[]> {
-    const savedItems = this.store.get<SavedTransformation[]>(
-      "savedTransformations"
-    );
+  async getChildren(element?: TransformationItem) {
+    const savedItems = await this.store.getAllItems();
 
     if (!savedItems) {
-      return Promise.resolve([]);
+      return [];
     }
 
     let result: TransformationItem[] = [];
@@ -49,58 +44,7 @@ export class TransformationsTreeDataProvider
         )
     );
 
-    return Promise.resolve(result);
-  }
-
-  async addNewItem(newTransformation: SavedTransformation) {
-    let savedItems = this.store.get<SavedTransformation[]>(
-      "savedTransformations"
-    );
-    if (!savedItems) {
-      savedItems = [];
-    }
-
-    const existingIndex = savedItems.findIndex(function (
-      currentTransformation
-    ) {
-      return currentTransformation.id === newTransformation.id;
-    });
-
-    if (existingIndex === -1) {
-      savedItems.push({
-        id: newTransformation.id,
-        pattern: newTransformation.pattern,
-        replacement: newTransformation.replacement,
-        position: newTransformation.position,
-        enabled: newTransformation.enabled,
-      });
-    } else {
-      savedItems.splice(existingIndex, 1, {
-        id: newTransformation.id,
-        pattern: newTransformation.pattern,
-        replacement: newTransformation.replacement,
-        position: newTransformation.position,
-        enabled: newTransformation.enabled,
-      });
-    }
-
-    await this.store.update("savedTransformations", savedItems);
-    return true;
-  }
-
-  async removeItem(transformationId: string) {
-    let savedItems = this.store.get<SavedTransformation[]>(
-      "savedTransformations"
-    );
-    if (!savedItems) {
-      return false;
-    }
-
-    savedItems = savedItems.filter(
-      (transformation) => transformation.id !== transformationId
-    );
-    await this.store.update("savedTransformations", savedItems);
-    return true;
+    return result;
   }
 }
 
