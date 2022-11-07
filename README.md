@@ -110,7 +110,7 @@ To configure a custom keyboard shortcut:
   "command": "sfcc-jobs-executor.runJob"
 }
 
-// run a specific job
+// run a specific job regardless of the current file
 {
     "key": "ctrl+shift+f6",
     "command": "sfcc-jobs-executor.runJob",
