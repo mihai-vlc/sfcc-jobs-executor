@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.2.0] - 07/Nov/2022
+
+- Adds support for BM user grant for the access token, needed for debugging to work.
+
 ## [1.1.0] - 07/Nov/2022
 
 - Added support for logs transformation which can be used for hiding/highlighting keywords
