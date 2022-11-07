@@ -240,6 +240,10 @@ export default class OCAPIClient {
   }
 
   async getAccessToken() {
+    if (this.config.username && this.config.password) {
+      return await this.getAccessTokenWithBMUserGrant();
+    }
+
     if (this.tokenCache.expireTime > new Date().getTime()) {
       return this.tokenCache.value;
     }
@@ -258,6 +262,51 @@ export default class OCAPIClient {
               ).toString("base64"),
           },
           body: "grant_type=client_credentials",
+        }
+      );
+
+      if (!response.ok) {
+        this.log(await response.text());
+        return;
+      }
+
+      const data = await response.json();
+
+      this.tokenCache = {
+        expireTime: new Date().getTime() + data.expires_in * 1000,
+        value: data.access_token,
+      };
+      return this.tokenCache.value;
+    } catch (e) {
+      if (e instanceof Error) {
+        this.log(e.message);
+      }
+    }
+  }
+
+  async getAccessTokenWithBMUserGrant() {
+    if (this.tokenCache.expireTime > new Date().getTime()) {
+      return this.tokenCache.value;
+    }
+
+    try {
+      const response = await fetch(
+        `https://${this.config.hostname}/dw/oauth2/access_token?client_id=${this.config.clientId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization:
+              "Basic " +
+              Buffer.from(
+                this.config.username +
+                  ":" +
+                  this.config.password +
+                  ":" +
+                  this.config.clientSecret
+              ).toString("base64"),
+          },
+          body: "grant_type=urn:demandware:params:oauth:grant-type:client-id:dwsid:dwsecuretoken",
         }
       );
 

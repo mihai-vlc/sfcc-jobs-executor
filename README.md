@@ -88,9 +88,31 @@ Administration > Organization > WebDAV Client Permissions
 // dw.json file
 {
   "hostname": "",
+  "username": "",
+  "password": "",
   "client-id": "",
   "client-secret": ""
 }
+```
+
+If you are using access tokens and you want to use a dedicated one for this extension:
+
+```jsonc
+{
+  "hostname": "",
+  "bm-username": "",
+  "bm-password": "",
+  "client-id": "",
+  "client-secret": ""
+}
+```
+
+If you don't need to have support for debugging you can use the following minimal configuration:
+
+```jsonc
+  "hostname": "",
+  "client-id": "",
+  "client-secret": ""
 ```
 
 ```js
