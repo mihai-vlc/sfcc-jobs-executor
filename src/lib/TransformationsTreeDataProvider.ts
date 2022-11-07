@@ -36,13 +36,15 @@ export class TransformationsTreeDataProvider
 
     let result: TransformationItem[] = [];
 
-    result = savedItems.map(
-      (transformation) =>
-        new TransformationItem(
-          transformation,
-          vscode.TreeItemCollapsibleState.None
-        )
-    );
+    result = savedItems
+      .sort((a, b) => a.position - b.position)
+      .map(
+        (transformation) =>
+          new TransformationItem(
+            transformation,
+            vscode.TreeItemCollapsibleState.None
+          )
+      );
 
     return result;
   }

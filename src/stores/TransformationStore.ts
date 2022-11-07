@@ -39,7 +39,7 @@ export class TransformationStore implements Store<SavedTransformation> {
         id: newTransformation.id,
         pattern: newTransformation.pattern,
         replacement: newTransformation.replacement,
-        position: newTransformation.position,
+        position: newTransformation.position || 0,
         enabled: newTransformation.enabled,
       });
     } else {
@@ -47,7 +47,7 @@ export class TransformationStore implements Store<SavedTransformation> {
         id: newTransformation.id,
         pattern: newTransformation.pattern,
         replacement: newTransformation.replacement,
-        position: newTransformation.position,
+        position: newTransformation.position || 0,
         enabled: newTransformation.enabled,
       });
     }

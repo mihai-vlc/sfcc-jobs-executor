@@ -7,7 +7,10 @@ Run SFCC jobs from VSCode and view the job logs in the output panel.
 ## Features
 
 - Read the job id from the comments on the active file
+- Read a specific job using a keyboard shortcut
 - Show the job execution logs in the output window
+- Manage and run jobs from a dedicated panel
+- Apply regex transformation rules to the job output logs
 
 ## Installation
 
@@ -21,6 +24,15 @@ The job configurations can be controlled from the dedicated panel:
 
 The transformations can be controlled from the dedicated panel:
 ![job configuration panel](./screenshots/transformation-configuration.png)
+
+### Logs transformations
+
+The log transformations are a set of regular expressions replace patterns that are applied before printing the text in the output panel.  
+The enabled rules have a checkmark before their name.  
+The rules are applied in the order they are listed in the panel.  
+The sorting is done by the position attribute.
+
+The regex is applied with the global modifier enabled.
 
 ### Business Manager
 

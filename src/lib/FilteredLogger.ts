@@ -18,6 +18,7 @@ export default class FilteredLogger {
   readAllRules() {
     this.transformationStore.getAllItems().then((savedItems) => {
       this.rules = savedItems.filter((item) => item.enabled);
+      this.rules.sort((a, b) => a.position - b.position);
     });
   }
 
