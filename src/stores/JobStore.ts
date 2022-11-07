@@ -10,6 +10,9 @@ export interface SavedJob extends StoreItem {
 export class JobStore implements Store<SavedJob> {
   constructor(private storeKey: string, private store: vscode.Memento) {}
 
+  private _onChange = new vscode.EventEmitter<void>();
+  readonly onChange: vscode.Event<void> = this._onChange.event;
+
   async getAllItems() {
     let savedItems = this.store.get<SavedJob[]>(this.storeKey);
     if (!savedItems) {
@@ -45,6 +48,7 @@ export class JobStore implements Store<SavedJob> {
     }
 
     await this.store.update(this.storeKey, savedItems);
+    this._onChange.fire();
     return true;
   }
 
@@ -56,6 +60,7 @@ export class JobStore implements Store<SavedJob> {
 
     savedItems = savedItems.filter((job) => job.id !== jobId);
     await this.store.update(this.storeKey, savedItems);
+    this._onChange.fire();
     return true;
   }
 }

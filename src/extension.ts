@@ -36,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
   const ocapi = new OCAPIClient(ocapiConfiguration, logger);
 
   const jobRunner = new JobRunner(ocapi, outputChannel);
-  registerRunJobCommand(context, jobRunner);
+  registerRunJobCommand(context, jobRunner, jobStore);
 
   const jobsProvider = new JobsTreeDataProvider(jobStore);
   const jobsTreeView = vscode.window.createTreeView(
@@ -46,9 +46,11 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  registerAddJobCommand(context, jobsProvider, jobStore);
-  registerEditJobCommand(context, jobsProvider, jobStore);
-  registerRemoveJobCommand(context, jobsProvider, jobStore);
+  jobStore.onChange(() => jobsProvider.refresh());
+
+  registerAddJobCommand(context, jobStore);
+  registerEditJobCommand(context, jobStore);
+  registerRemoveJobCommand(context, jobStore);
 
   const transformationsProvider = new TransformationsTreeDataProvider(
     transformationStore
@@ -60,31 +62,18 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  registerAddTransformationCommand(
-    context,
-    transformationsProvider,
-    transformationStore
-  );
-  registerEditTransformationCommand(
-    context,
-    transformationsProvider,
-    transformationStore
-  );
-  registerRemoveTransformationCommand(
-    context,
-    transformationsProvider,
-    transformationStore
-  );
-  registerToggleEnabledTransformationCommand(
-    context,
-    transformationsProvider,
-    transformationStore
-  );
+  transformationStore.onChange(() => transformationsProvider.refresh());
+
+  registerAddTransformationCommand(context, transformationStore);
+  registerEditTransformationCommand(context, transformationStore);
+  registerRemoveTransformationCommand(context, transformationStore);
+  registerToggleEnabledTransformationCommand(context, transformationStore);
 }
 
 async function registerRunJobCommand(
   context: vscode.ExtensionContext,
-  jobRunner: JobRunner
+  jobRunner: JobRunner,
+  jobStore: JobStore
 ) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.runJob",
@@ -103,6 +92,10 @@ async function registerRunJobCommand(
           item.job.clearLog || jobDetails.shouldClearLog;
       } else {
         jobDetails = await getJobDetailsFromActiveFile();
+
+        if (jobDetails.jobId) {
+          await jobStore.addItem(jobDetails.toSavedJob());
+        }
       }
 
       if (!jobDetails.jobId) {
@@ -124,7 +117,6 @@ async function registerRunJobCommand(
 
 async function registerAddJobCommand(
   context: vscode.ExtensionContext,
-  jobsProvider: JobsTreeDataProvider,
   jobStore: JobStore
 ) {
   const commandDisposable = vscode.commands.registerCommand(
@@ -134,7 +126,6 @@ async function registerAddJobCommand(
 
       menu.onSave(async (details) => {
         await jobStore.addItem(details);
-        jobsProvider.refresh();
       });
 
       menu.show();
@@ -145,7 +136,6 @@ async function registerAddJobCommand(
 
 async function registerEditJobCommand(
   context: vscode.ExtensionContext,
-  jobsProvider: JobsTreeDataProvider,
   jobStore: JobStore
 ) {
   const commandDisposable = vscode.commands.registerCommand(
@@ -156,7 +146,6 @@ async function registerEditJobCommand(
       menu.onSave(async (details) => {
         await jobStore.removeItem(item.job.id);
         await jobStore.addItem(details);
-        jobsProvider.refresh();
       });
 
       menu.show();
@@ -167,14 +156,12 @@ async function registerEditJobCommand(
 
 async function registerRemoveJobCommand(
   context: vscode.ExtensionContext,
-  jobsProvider: JobsTreeDataProvider,
   jobStore: JobStore
 ) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.removeJob",
     async (item: JobItem) => {
       await jobStore.removeItem(item.job.id);
-      jobsProvider.refresh();
     }
   );
   context.subscriptions.push(commandDisposable);
@@ -182,7 +169,6 @@ async function registerRemoveJobCommand(
 
 async function registerAddTransformationCommand(
   context: vscode.ExtensionContext,
-  transformationsProvider: TransformationsTreeDataProvider,
   transformationStore: TransformationStore
 ) {
   const commandDisposable = vscode.commands.registerCommand(
@@ -192,7 +178,6 @@ async function registerAddTransformationCommand(
 
       menu.onSave(async (details) => {
         await transformationStore.addItem(details);
-        transformationsProvider.refresh();
       });
 
       menu.show();
@@ -203,7 +188,6 @@ async function registerAddTransformationCommand(
 
 async function registerEditTransformationCommand(
   context: vscode.ExtensionContext,
-  transformationsProvider: TransformationsTreeDataProvider,
   transformationStore: TransformationStore
 ) {
   const commandDisposable = vscode.commands.registerCommand(
@@ -214,7 +198,6 @@ async function registerEditTransformationCommand(
       menu.onSave(async (details) => {
         await transformationStore.removeItem(item.transformation.id);
         await transformationStore.addItem(details);
-        transformationsProvider.refresh();
       });
 
       menu.show();
@@ -225,14 +208,12 @@ async function registerEditTransformationCommand(
 
 async function registerRemoveTransformationCommand(
   context: vscode.ExtensionContext,
-  transformationsProvider: TransformationsTreeDataProvider,
   transformationStore: TransformationStore
 ) {
   const commandDisposable = vscode.commands.registerCommand(
     "sfcc-jobs-executor.removeTransformation",
     async (item: TransformationItem) => {
       await transformationStore.removeItem(item.transformation.id);
-      transformationsProvider.refresh();
     }
   );
   context.subscriptions.push(commandDisposable);
@@ -240,7 +221,6 @@ async function registerRemoveTransformationCommand(
 
 async function registerToggleEnabledTransformationCommand(
   context: vscode.ExtensionContext,
-  transformationsProvider: TransformationsTreeDataProvider,
   transformationStore: TransformationStore
 ) {
   const commandDisposable = vscode.commands.registerCommand(
@@ -250,7 +230,6 @@ async function registerToggleEnabledTransformationCommand(
         enabled: !item.transformation.enabled,
       });
       await transformationStore.addItem(transformation);
-      transformationsProvider.refresh();
     }
   );
   context.subscriptions.push(commandDisposable);

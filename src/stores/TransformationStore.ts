@@ -9,8 +9,7 @@ export interface SavedTransformation extends StoreItem {
 }
 
 export class TransformationStore implements Store<SavedTransformation> {
-  private _onChange: vscode.EventEmitter<void> =
-    new vscode.EventEmitter<void>();
+  private _onChange = new vscode.EventEmitter<void>();
   readonly onChange: vscode.Event<void> = this._onChange.event;
 
   constructor(private storeKey: string, private store: vscode.Memento) {}

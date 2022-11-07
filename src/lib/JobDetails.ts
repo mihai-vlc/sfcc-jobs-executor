@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { SavedJob } from "../stores/JobStore";
 
 export default class JobDetails {
   public jobId: string = "";
@@ -46,5 +47,14 @@ export default class JobDetails {
         break;
       }
     }
+  }
+
+  toSavedJob(): SavedJob {
+    return {
+      id: this.jobId,
+      timeout: this.timeout,
+      clearLog: this.shouldClearLog,
+      position: 0,
+    };
   }
 }

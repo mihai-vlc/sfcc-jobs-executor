@@ -138,7 +138,7 @@ export default class OCAPIClient {
         if (endTime < new Date().getTime()) {
           this.logWithPrefix(
             `Execution timeout of ${timeout}ms reached, stopping tail watch.` +
-              `You can specify a longer timeout using @sfccJobTailLogTimeout 60000`
+              `You can specify a longer timeout using @sfccJobTailLogTimeout 60000 or from the jobs panel.`
           );
           break;
         }
