@@ -1,6 +1,6 @@
 # SFCC Jobs Executor
 
-Run SFCC jobs from VSCode.
+Run SFCC jobs from VSCode and view the job logs in the output panel.
 
 ![screenshot](/screenshots/screen1.png)
 
@@ -15,6 +15,12 @@ You can install it from the [marketplace](https://marketplace.visualstudio.com/i
 `ext install ionutvmi.sfcc-jobs-executor`
 
 ## Configuration
+
+The job configurations can be controlled from the dedicated panel:
+![job configuration panel](./screenshots/job-configuration.png)
+
+The transformations can be controlled from the dedicated panel:
+![job configuration panel](./screenshots/transformation-configuration.png)
 
 ### Business Manager
 
@@ -98,9 +104,23 @@ To configure a custom keyboard shortcut:
 
 ```jsonc
 // keybindings.json
+// run the job from the current file
 {
   "key": "ctrl+shift+f6",
   "command": "sfcc-jobs-executor.runJob"
+}
+
+// run a specific job
+{
+    "key": "ctrl+shift+f6",
+    "command": "sfcc-jobs-executor.runJob",
+    "args": {
+        "job": {
+            "id": "000-test-job",
+            "timeout": 60000,
+            "clearLog": true
+        }
+    }
 }
 ```
 

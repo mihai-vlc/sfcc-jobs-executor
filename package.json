@@ -1,8 +1,8 @@
 {
   "name": "sfcc-jobs-executor",
-  "displayName": "SFCC jobs Executor",
-  "description": "Execute SFCC jobs from VSCode.",
-  "version": "1.0.0",
+  "displayName": "SFCC Jobs Executor",
+  "description": "Execute SFCC jobs from VSCode and view the job logs in the output panel",
+  "version": "1.1.0",
   "publisher": "ionutvmi",
   "engines": {
     "vscode": "^1.70.0"
